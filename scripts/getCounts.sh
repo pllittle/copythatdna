@@ -3,18 +3,23 @@
 [ ! -z $srcPL_dnaGetCNT ] && [ $srcPL_dnaGetCNT -eq 1 ] && return 0
 [ -z "$git_dir" ] && git_dir=$(cd $(dirname $BASH_SOURCE)/../..; pwd)
 
-repo_dir=$git_dir/baSHic
-while true; do
-	if [ ! -d $repo_dir ] ; then
-		cd $git_dir
-		git clone https://github.com/pllittle/baSHic.git >&2
-		[ $? -eq 0 ] && break
-	else
-		cd $repo_dir
-		git pull >&2
-		[ $? -eq 0 ] && break
-	fi
-	echo "Error in cloning baSHic, contact pllittle" >&2 && return 1
+for repo in baSHic; do
+	repo_dir=$git_dir/$repo
+	check_array $repo baSHic && tmp_url=https://github.com/pllittle/$repo.git
+	
+	while true; do
+		if [ ! -d "$repo_dir" ]; then
+			cd "$git_dir"
+			git clone "$tmp_url" >&2
+			[ $? -eq 0 ] && break
+		else
+			cd "$repo_dir"
+			git pull >&2
+			[ $? -eq 0 ] && break
+		fi
+		echo -e "Some error in cloning $repo, contact pllittle" >&2 && return 1
+	done
+	
 done
 
 for fn in base colors getEnv install linux_git linux_perl; do
