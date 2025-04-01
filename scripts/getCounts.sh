@@ -132,19 +132,21 @@ get_GCcontent(){
 		shift
 	done
 	
-	[ -z $bt_dir ] 		&& echo "Add -b <bedtools dir>" >&2 && return 1
-	[ -z $fasta_fn ] 	&& echo "Add -f <reference fasta>" >&2 && return 1
-	[ -z $input_fn ] 	&& echo "Add -i <input bed file>" >&2 && return 1
-	[ -z $output_fn ] && echo "Add -o <output bed file>" >&2 && return 1
+	[ -z "$bt_dir" ] 		&& echo "Add -b <bedtools dir>" >&2 && return 1
+	[ -z "$fasta_fn" ] 	&& echo "Add -f <reference fasta>" >&2 && return 1
+	[ -z "$input_fn" ] 	&& echo "Add -i <input bed file>" >&2 && return 1
+	[ -z "$output_fn" ] && echo "Add -o <output bed file>" >&2 && return 1
 	
-	[ -s $output_fn ] && return 0
-	orig_ncols=$(head -n 1 $input_fn | sed 's|\t|\n|g' | wc -l)
+	[ -s "$output_fn" ] && return 0
+	orig_ncols=$(head -n 1 "$input_fn" | sed 's|\t|\n|g' | wc -l)
+	
+	[ ! -f "$fasta_fn" ] && echo "fasta error" >&2 && return 1
 	
 	echo -e "`date`: GC content started" >&2
-	$bt_dir/bin/bedtools nuc -fi $fasta_fn \
+	"$bt_dir/bin/bedtools" nuc -fi "$fasta_fn" \
 		-bed $input_fn | tail -n +2 \
 		| cut -f 1-${orig_ncols},$((orig_ncols+2)) \
-		> $output_fn
+		> "$output_fn"
 	status=$?
 	[ ! $status -eq 0 ] && new_rm $output_fn \
 		&& echo -e "`date`: Error with GC content" >&2 \
