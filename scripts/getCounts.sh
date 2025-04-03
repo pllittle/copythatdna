@@ -3,26 +3,6 @@
 [ ! -z $srcPL_dnaGetCNT ] && [ $srcPL_dnaGetCNT -eq 1 ] && return 0
 [ -z "$git_dir" ] && git_dir=$(cd $(dirname $BASH_SOURCE)/../..; pwd)
 
-for repo in baSHic; do
-	repo_dir="$git_dir/$repo"
-	check_array $repo baSHic && tmp_url=https://github.com/pllittle/$repo.git
-	
-	if [ ! -d "$repo_dir" ]; then
-		cd "$git_dir"
-		git clone "$tmp_url" >&2
-		[ $? -eq 0 ] && continue
-	else
-		[ -f "$git_dir/$repo/.git/ORIG_HEAD.lock" ] && continue
-		cd "$repo_dir"
-		git pull >&2
-		[ $? -eq 0 ] && continue
-	fi
-	
-	echo -e "Error in clone/pull $repo" >&2
-	return 1
-	
-done
-
 for fn in base colors getEnv install linux_git linux_perl; do
 	. "$git_dir/baSHic/scripts/$fn.sh"
 	[ $? -eq 0 ] && continue
